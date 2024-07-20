@@ -24,3 +24,10 @@ we can split in diffrent parts or terminal:
 - it needs permissions to interact with AWS, before we use OpenId Connect provider that is complicated
 - a new way is to use eks pod identity , to enable it, you can use EKS addons , you still need to create a IAM role for the kubernetes service account
 - so we deploy eks pod identity agents as a daemonset
+
+
+## aws load balancer controller, Ingress, TLS
+
+since we use yhe native vpc network when we create an EKS cluster, each pod get vpc routable IP addresses, so you can directly add pod ips to the load balancer target group. 
+
+ - 

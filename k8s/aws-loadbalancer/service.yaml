@@ -1,0 +1,29 @@
+---
+# Supported annotations
+# https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/guide/service/annotations/
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+  namespace: 5-example
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: external # otherwise in-tree legacy cloud manager will be used
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip # ip mode instead of instance mode to avoid routing your request through node ports
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing # accessible in the internet or internal which only have private ip addresses be accessible in the VPC
+    # service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*" # proxy protocol if the app needs to know the actual client source ip address otherwise it will get load balancer source ip
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: http
+  selector:
+    app: myapp
+
+
+# kubectl apply -f
+# kubectl get svc -n lbc
+# it will be a layer 4 load balancer, its a little bit cheaper and faster than app load balancer
+# if you use a legacy cloud manager controller, it would provision a classic load balancer
+# dont use internet facing load balancer to expose your internal services & dashboards such as Prometheus or grafana 
+# kubectl get pods -o wide -n lbc
+# curl -i http://.....

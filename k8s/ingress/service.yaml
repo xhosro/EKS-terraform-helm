@@ -1,0 +1,17 @@
+# kubectl get ingressclass
+# service of type clusterIP , if we want to create Ingress using instance mode and not ip mode , we muqt use nodeport, even in th cloud
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+  namespace: ingress
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+  selector:
+    app: myapp

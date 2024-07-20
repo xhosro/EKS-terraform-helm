@@ -1,0 +1,37 @@
+---
+# It will be created application load balancer that was created by the ingrass resource
+# it means can route traffic based on the http path or a verb such as GET / POST
+# Supported annotations
+# https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/guide/ingress/annotations/
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp
+  namespace: ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /health # should have the health check with the status of 200 status code.
+spec:
+  ingressClassName: alb
+  rules:
+    - host: myapp.example.com # we must use dns record
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp
+                port:
+                  number: 8080
+
+
+
+# kubectl apply -f
+# kubectl get ing -n ingress
+
+# we can test it before changing the dns record and sending live traffic to it, even in production, 
+# to test you can use a header with our host 
+# since it is ingress , we don't need to use port 8080 anymore
+# curl -i --header "Host: myapp.example.com" http:<addrss of kubectl get ing -n ingress>

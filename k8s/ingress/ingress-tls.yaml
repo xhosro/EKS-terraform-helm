@@ -1,0 +1,42 @@
+---
+# Supported annotations
+# https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/guide/ingress/annotations/
+# we need a tls certificate to secure our ingress
+# for the app load balancer, we cant not use let's encrypt and need to obtain a aws tls certificate manager 
+# you can do this if we host our domain outside the aws or in route53
+# so for domain name if we have cloud.com and www.cloud.com, you need two put two domain name
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp
+  namespace: ingress
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: # <arn:our certificate that we generate in aws>
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443" # if anyone use http , it will redirect to https
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+spec:
+  ingressClassName: alb # for alb to create ingress 
+  rules:
+    - host: myapp.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp
+                port:
+                  number: 8080
+
+# if we dont have tls section, its because tls will be terminated outside of kubernetes cluster, on the app load balancer
+# so there is no need to keep certificate & private key like nginx ingress controller
+
+# to test a tls we can create a dns Cname record
+# The dig command is a network administration command-line tool for querying DNS servers. 
+# It is used to gather information about DNS records, including A records, MX records, CNAME records, and more. 
+# It is particularly useful for troubleshooting DNS issues and for verifying the configuration of DNS records.
+# dig myapp.example.com
